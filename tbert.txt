@@ -1,9 +1,17 @@
 
+흥부놀부 보쌈
+흥부놀부 부대째개
+미녀와야수
+라푼젤
+겨울왕국
+UP, 볼트 
 
-어린왕자
+#순서3] .env파일 그대로 사용
+# test_openai.py사용 
+OPENAI_API_KEY=sk-proj-BGcrIGt1q_여러분 키값 KBojIxl4mrDFSL6EAArzdjDhIO_M2xFCQ3SVdOsA
 
-
-
+# https://openrouter.ai 사이트참고 
+OPENROUTER_API_KEY=sk-or-v1여러분 키값 4f2136fd6eee6664472a4162d188de
 
 
 
