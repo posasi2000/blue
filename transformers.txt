@@ -1,0 +1,143 @@
+https://www.data.go.kr/
+https://www.seoul.go.kr/main/index.jsp
+https://data.seoul.go.kr/dataList/OA-15493/A/1/datasetView.do
+
+순서1] 한국어 감성 분석 파이프라인 생성
+
+from transformers import pipeline
+
+# 한국어 감성 분석 파이프라인 생성
+classifier = pipeline(
+    "text-classification",
+    model="tabularisai/multilingual-sentiment-analysis"
+)
+
+# 한국어 문장 분석
+result = classifier("오늘 날씨가 정말 좋습니다. 밖에서 운동할 수 있을 것 같아요")
+# result = classifier("오늘 날씨가 정말 좋습니다. 우산을 쓰고 겨울외투를 입고 나왔습니다")
+# result = classifier("오늘 날씨는 바람이 불고 비가 내리고 있습니다. 밖에서 운동할 수 있을 것 같아요")
+print('분석결과 ', result)
+print()
+
+sentences = [
+    "오늘 날씨가 너무 좋아서 기분이 최고예요!",
+    "이 제품은 정말 별로네요. 다시는 사지 않을 것 같아요.",
+    "배송은 평범했습니다.",
+]
+
+results = classifier(sentences)
+
+for sentence, result in zip(sentences, results):
+    label = result["label"]
+    score = round(result["score"] * 100, 2)
+    print(f"{sentence}")
+    print(f"  → {label} ({score}%)\n")
+
+
+# 결과값
+분석결과  [{'label': 'Positive', 'score': 0.8115836977958679}]
+
+오늘 날씨가 너무 좋아서 기분이 최고예요!
+  → Very Positive (80.16%)
+
+이 제품은 정말 별로네요. 다시는 사지 않을 것 같아요.
+  → Negative (60.21%)
+
+배송은 평범했습니다.
+  → Neutral (78.11%)
+
+
+
+*------------------------------------------------------------------------------------------
+순서2] fill-mask
+# klueAnalysis에서 KLUE는 인공지능(AI) 및 자연어 처리(NLP) 분야에서 사용되는 Korean Language Understanding Evaluation(한국어 자연어 이해 평가)의 약자입니다.
+# klueAnalysis는 이 KLUE 벤치마크 데이터셋을 활용하여 한국어 텍스트나 인공지능 모델의 성능을 형태소 분석, 의존 구문 분석, 개체명 인식(NER) 등의 기준에 따라 분석하고 평가하는 작업 또는 관련 라이브러리/코드를 의미합니다. 
+# KLUE의 구체적인 의미와 역할은 다음과 같습니다.
+# ㄴKorean (한국어)
+# ㄴLanguage Understanding (자연어 이해)
+# ㄴEvaluation (평가)
+
+from transformers import pipeline
+
+fill = pipeline(
+    "fill-mask" ,
+    model = "klue/bert-base"
+)
+
+# result = fill("나는 오늘 [MASK]에 가서 과일을 샀다")
+result = fill("나는 오늘 [MASK]에 가서 책을 샀다")
+
+filter = [ r for r  in  result if r["token_str"] != "[UNK]" ]
+print("나는 오늘 [MASK]에 가서 책을 샀다\n")
+# print("나는 오늘 [MASK]에 가서 과일을 샀다\n")
+
+for item in filter[:5]:
+    token = item["token_str"]
+    score = round( item["score"] *100, 2)
+    bar = "█" * int(score/5)
+    print(f" {token:<6} {bar:<20} {score}%") # <왼쪽  >오른쪽  ^중앙
+
+# 결과값
+나는 오늘 [MASK]에 가서 책을 샀다
+ 서점     ████                 22.54%
+ 교보문고   ██                   10.65%
+ 도서관    █                    8.49%
+ 알라딘                         2.81%
+
+*------------------------------------------------------------------------------------------
+순서3] klueAnalysis
+# klueAnalysis에서 KLUE는 인공지능(AI) 및 자연어 처리(NLP) 분야에서 사용되는 Korean Language Understanding Evaluation(한국어 자연어 이해 평가)의 약자입니다.
+# klueAnalysis는 이 KLUE 벤치마크 데이터셋을 활용하여 한국어 텍스트나 인공지능 모델의 성능을 형태소 분석, 의존 구문 분석, 개체명 인식(NER) 등의 기준에 따라 분석하고 평가하는 작업 또는 관련 라이브러리/코드를 의미합니다. 
+# KLUE의 구체적인 의미와 역할은 다음과 같습니다.
+# ㄴKorean (한국어)
+# ㄴLanguage Understanding (자연어 이해)
+# ㄴEvaluation (평가)
+
+from transformers import pipeline
+
+fill = pipeline(
+    "fill-mask" ,
+    model = "klue/bert-base"
+)
+
+sentences=[
+   "나는 배가 고파서 [MASK]을 먹었다" ,
+   "항구에 큰 [MASK]가 들어오고 있었다" ,
+   "과일 가게에서 [MASK]를 한 박스 샀다" ,
+   "나는 오늘 [MASK]공부를 열심히 하고 있습니다"
+]
+
+print("[MASK]처리 결과확인\n")  
+
+for sentence in sentences:
+    result = fill(sentence)
+    filter = [ r for r  in  result if r["token_str"] != "[UNK]" ]
+    print(f"📝 {sentence}\n")
+    for item in filter[:5]:
+        token = item["token_str"]
+        score = round( item["score"] *100, 2)
+        bar = "█" * int(score/5)
+        print(f" {token:<6} {bar:<20} {score}%") # <왼쪽  >오른쪽  ^중앙
+
+# 결과값
+📝 나는 배가 고파서 [MASK]을 먹었다
+
+ 치킨     █                    8.22%
+ 라면                          4.06%
+ 아이스크림                       3.68%
+ 빵                           3.67%
+📝 항구에 큰 [MASK]가 들어오고 있었다
+
+ 파도     ████                 23.35%
+ 소리     ███                  15.77%
+ 배                           4.43%
+ 새                           4.11%
+ 남자                          2.4%
+📝 과일 가게에서 [MASK]를 한 박스 샀다
+
+ 사과     ██                   12.25%
+ 복숭아    ██                   12.24%
+ 딸기     ██                   11.3%
+ 바나나    █                    5.14%
+ 체리                          4.31%
+*------------------------------------------------------------------------------------------
